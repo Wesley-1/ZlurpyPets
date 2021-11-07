@@ -4,7 +4,10 @@ import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import zlurpypets.zlurpypets.ZlurpyPets;
 import zlurpypets.zlurpypets.controllers.CommonController;
+import zlurpypets.zlurpypets.managers.ActivationManager;
 import zlurpypets.zlurpypets.managers.PetManager;
+
+import java.util.UUID;
 
 /**
  *
@@ -23,8 +26,15 @@ public record Pet<O>(String name,
                   PetItem item,
                   CommonController<O> controller) {
 
+    /**
+     * This is where the pet is setup
+     * Here the pet gets created and where we check the config for certain elements
+     * The pet also gets added to the pet registry so it can be used later on and looked up easily by identifier.
+     */
+
     public void setupPet() {
         FileConfiguration config = ZlurpyPets.getInstance().getConfig();
+        PetManager<O> manager = new PetManager<O>();
 
         config.getConfigurationSection("Pets." + identifier).getKeys(false).forEach(key -> {
 
@@ -38,13 +48,29 @@ public record Pet<O>(String name,
                     new PetItem(
                             Material.valueOf(config.getString(key + ".item.material")),
                             config.getStringList(key + ".item.lore"),
-                            config.getString(key + ".item.name")
-                    ),
+                            config.getString(key + ".item.name")),
 
                     controller);
 
-                PetManager<O> manager = new PetManager<O>();
                 manager.register(configurablePet);
         });
     }
+
+    /**
+     *
+     * @param uuid This is used to identify the user in the set
+     *
+     * @return This returns a true or false value that tells you if the user has a pet active.
+     *
+     */
+
+    public boolean isActive(UUID uuid) {
+        ActivationManager toggleManager = new ActivationManager();
+
+        if (toggleManager.activationSet.contains(uuid))
+            return true;
+
+        return false;
+    }
+
 }

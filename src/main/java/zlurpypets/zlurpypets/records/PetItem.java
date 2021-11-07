@@ -19,6 +19,10 @@ import java.util.List;
  */
 public record PetItem(Material material, List<String> lore, String name) {
 
+    /**
+     *
+     * @return This returns the itemstack for the pet.
+     */
     public ItemStack getItem() {
 
         ItemStack petItem = new ItemStack(material);
