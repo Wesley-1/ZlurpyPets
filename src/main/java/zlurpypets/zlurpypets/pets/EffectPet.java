@@ -15,19 +15,18 @@ import java.util.Arrays;
 public class EffectPet implements Listener {
 
     @EventHandler
-    public void onInteract(PlayerInteractEvent event) {
+    public void onInteract(PlayerInteractEvent eventInteraction) {
 
-        Pet<Event> pet = new Pet<>("Pet", "EFFECT", 10, 1, new PetItem(Material.ANVIL, Arrays.asList("Hi"), "Hi"),
+        CommonController<Event> effectController = new CommonController<>(eventInteraction,
+        eventObj -> {
 
-                new CommonController<>(event,
-                        eventObj -> {
+            PlayerInteractEvent event = (PlayerInteractEvent) eventObj;
 
-                    PlayerInteractEvent obj = (PlayerInteractEvent) eventObj;
+            event.getPlayer().sendMessage(event.getClickedBlock().getType().toString());
 
-                    obj.getClickedBlock().getType();
+        });
 
-                        }));
-
+        Pet<Event> pet = new Pet<>("Pet", "EFFECT", 10, 1, new PetItem(Material.ANVIL, Arrays.asList("Hi"), "Hi"), effectController);
 
         pet.setupPet();
 
