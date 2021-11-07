@@ -1,19 +1,14 @@
 package zlurpypets.zlurpypets.records;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.configuration.file.FileConfiguration;
 import zlurpypets.zlurpypets.ZlurpyPets;
-import zlurpypets.zlurpypets.interfaces.IController;
-import zlurpypets.zlurpypets.records.controllers.CommonController;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.util.function.Consumer;
+import zlurpypets.zlurpypets.controllers.CommonController;
+import zlurpypets.zlurpypets.managers.PetManager;
 
 /**
  *
- * @param petController Pets action controller
+ * @param controller This is the common controller for actions
  * @param identifier This is used to identify the pet in code and config
  * @param item This is the pets item, this has the lore, material and name.
  * @param maxLevel This is the pets max level it can reach
@@ -23,27 +18,20 @@ import java.util.function.Consumer;
  */
 public record Pet<O>(String name,
                   String identifier,
-                  CommonController<O> controller,
                   int maxLevel,
                   int startLevel,
-                  PetItem item) {
+                  PetItem item,
+                  CommonController<O> controller) {
 
-    static Map<String, Pet<Object>> petMap = new HashMap<>();
-
-    /**
-     *
-     * @param identifier This is what you can use to set identifier
-     */
-    public void setupPet(String identifier) {
+    public void setupPet() {
         FileConfiguration config = ZlurpyPets.getInstance().getConfig();
 
         config.getConfigurationSection("Pets." + identifier).getKeys(false).forEach(key -> {
 
-            Pet<O> configurablePet = new Pet<>(
+            Pet<O> configurablePet = new Pet<O>(
 
                     config.getString(key + ".name"),
                     identifier,
-                    controller,
                     config.getInt(key + ".maxLevel"),
                     config.getInt(key + ".startLevel"),
 
@@ -51,10 +39,12 @@ public record Pet<O>(String name,
                             Material.valueOf(config.getString(key + ".item.material")),
                             config.getStringList(key + ".item.lore"),
                             config.getString(key + ".item.name")
-                    ));
+                    ),
 
-            petMap.put(configurablePet.identifier, configurablePet);
+                    controller);
 
+                PetManager<O> manager = new PetManager<O>();
+                manager.register(configurablePet);
         });
     }
 }
