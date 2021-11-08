@@ -53,6 +53,7 @@ public record PetItem(Material material, List<String> lore, String name) {
      * @param updatedName This will be what the name is set to
      *
      */
+
     public void update(Player player, List<String> updatedLore, String updatedName) {
 
         Inventory inv = player.getInventory();

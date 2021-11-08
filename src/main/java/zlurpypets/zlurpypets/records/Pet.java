@@ -27,33 +27,21 @@ public record Pet<O>(String name,
                   CommonController<O> controller) {
 
     /**
-     * This is where the pet is setup
-     * Here the pet gets created and where we check the config for certain elements
-     * The pet also gets added to the pet registry so it can be used later on and looked up easily by identifier.
+     * Here the pet is created and stored in the manager
      */
 
     public void setupPet() {
-        FileConfiguration config = ZlurpyPets.getInstance().getConfig();
         PetManager<O> manager = new PetManager<O>();
 
-        config.getConfigurationSection("Pets." + identifier).getKeys(false).forEach(key -> {
+        Pet<O> pet = new Pet<O>(
+                name,
+                identifier,
+                maxLevel,
+                startLevel,
+                item,
+                controller);
 
-            Pet<O> configurablePet = new Pet<O>(
-
-                    config.getString(key + ".name"),
-                    identifier,
-                    config.getInt(key + ".maxLevel"),
-                    config.getInt(key + ".startLevel"),
-
-                    new PetItem(
-                            Material.valueOf(config.getString(key + ".item.material")),
-                            config.getStringList(key + ".item.lore"),
-                            config.getString(key + ".item.name")),
-
-                    controller);
-
-                manager.register(configurablePet);
-        });
+        manager.register(pet);
     }
 
     /**
@@ -66,11 +54,7 @@ public record Pet<O>(String name,
 
     public boolean isActive(UUID uuid) {
         ActivationManager toggleManager = new ActivationManager();
-
-        if (toggleManager.activationSet.contains(uuid))
-            return true;
-
-        return false;
+        return toggleManager.activationSet.contains(uuid);
     }
 
 }
